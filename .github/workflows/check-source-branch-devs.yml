@@ -1,4 +1,4 @@
-name: Validar Origen de Pull Requests
+name: Validar Origen de Pull Requests hacia Devs
 
 on:
   pull_request:
