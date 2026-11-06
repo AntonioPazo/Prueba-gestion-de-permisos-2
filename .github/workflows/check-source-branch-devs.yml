@@ -1,0 +1,34 @@
+name: Validar Origen de Pull Requests hacia Devs
+
+on:
+  pull_request:
+    branches:
+      # Añade aquí todas las ramas de destino que quieres proteger  
+      - APZ
+      - ABG
+jobs:
+  check-branch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verificar reglas de origen y destino
+        run: |
+          DESTINO="${{ github.base_ref }}"
+          ORIGEN="${{ github.head_ref }}"
+          ES_VALIDA=false
+
+          # REGLA 1: Para la rama 'main' (Solo permite desde staging o hotfix)
+          if [ "$DESTINO" = "APZ" ] || [ "$DESTINO" = "ABG" ]; then
+            if [ "$ORIGEN" = "DEV" ]; then
+              ES_VALIDA=true
+            fi
+            RAMAS_PERMITIDAS="DEV"
+          fi
+
+          # Validación final
+          if [ "$ES_VALIDA" = "false" ]; then
+            echo "❌ ERROR: No se puede fusionar '$ORIGEN' dentro de '$DESTINO'."
+            echo "📢 La rama '$DESTINO' solo acepta pulls desde: $RAMAS_PERMITIDAS"
+            exit 1
+          else
+            echo "✅ Validación exitosa: '$ORIGEN' -> '$DESTINO'."
+          fi
